@@ -1,6 +1,7 @@
 import React, { createContext, useState, useEffect, useContext } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { Appearance, Platform, StatusBar } from 'react-native';
+import { Appearance } from 'react-native';
+import { StatusBar } from 'expo-status-bar'; // Expo status bar
 
 const ThemeContext = createContext();
 
@@ -9,39 +10,28 @@ export const useTheme = () => useContext(ThemeContext);
 export const ThemeProvider = ({ children }) => {
   const [theme, setTheme] = useState('system');
   const [statusBarColor, setStatusBarColor] = useState('#ffffff');
+  const [statusBarStyle, setStatusBarStyle] = useState('dark');
 
   const themes = {
-    light: { 
-      backgroundColor: '#ffffff', 
-      color: '#000000',
-      statusBarColor: '#ffffff',
+    light: {
+      primaryBackgroundColor: '#FFFFFF',
+      secondaryBackgroundColor: '#F2F2F2',
+      primaryTextColor: '#000000',
+      secondaryTextColor: '#888888',
+      statusBarColor: '#FFFFFF',
+      imageTintColor: '#666666',
+      inputFieldHintColor: '#AAAAAA',
     },
-    dark: { 
-      backgroundColor: '#000000', 
-      color: '#ffffff',
+    dark: {
+      primaryBackgroundColor: '#000000',
+      secondaryBackgroundColor: '#1a1a1a',
+      primaryTextColor: '#ffffff',
+      secondaryTextColor: '#f2f2f2',
       statusBarColor: '#000000',
+      imageTintColor: '#cccccc',
+      inputFieldHintColor: '#777777',
     },
-    dimmed: { 
-      backgroundColor: '#2c2c2c', 
-      color: '#d3d3d3',
-      statusBarColor: '#000000',
-    },
-    purple: { 
-      backgroundColor: '#394DAC', 
-      color: '#394dac',
-      statusBarColor: '#ffffff',
-      textColor: "#394dac"
-    },
-    orange: { 
-      backgroundColor: '#ffa500', 
-      color: '#000000',
-      statusBarColor: '#ffffff',
-    },
-    pink: { 
-      backgroundColor: '#FF5E2A', 
-      color: '#000000',
-      statusBarColor: '#ffffff',
-    },
+    // Other themes...
   };
 
   const getSystemTheme = () => {
@@ -50,27 +40,23 @@ export const ThemeProvider = ({ children }) => {
   };
 
   useEffect(() => {
-    const loadTheme = async () => {
+    const loadThemeFromStorage = async () => {
       try {
         const savedTheme = await AsyncStorage.getItem('theme');
-        if (savedTheme) {
-          setTheme(savedTheme);
-        } else {
-          // Default to system theme if no theme is saved
-          setTheme('system');
-        }
+        setTheme(savedTheme || 'system');
       } catch (error) {
         console.error('Failed to load theme from storage', error);
         setTheme('system');
       }
     };
 
-    loadTheme();
+    loadThemeFromStorage();
 
     const subscription = Appearance.addChangeListener(({ colorScheme }) => {
       if (theme === 'system') {
         const currentTheme = colorScheme === 'dark' ? themes.dark : themes.light;
         setStatusBarColor(currentTheme.statusBarColor);
+        setStatusBarStyle(colorScheme === 'dark' ? 'light' : 'dark');
       }
     });
 
@@ -80,6 +66,7 @@ export const ThemeProvider = ({ children }) => {
   useEffect(() => {
     if (theme !== 'system') {
       setStatusBarColor(themes[theme].statusBarColor);
+      setStatusBarStyle(theme === 'dark' ? 'light' : 'dark');
     }
   }, [theme]);
 
@@ -87,28 +74,19 @@ export const ThemeProvider = ({ children }) => {
     try {
       await AsyncStorage.setItem('theme', newTheme);
       setTheme(newTheme);
-      // Update status bar color immediately when theme changes
       setStatusBarColor(themes[newTheme].statusBarColor);
+      setStatusBarStyle(newTheme === 'dark' ? 'light' : 'dark');
     } catch (error) {
       console.error('Failed to save theme to storage', error);
     }
   };
 
-  const value = {
-    theme: theme === 'system' ? getSystemTheme() : themes[theme],
-    setTheme: changeTheme,
-  };
+  const themeValue = theme === 'system' ? getSystemTheme() : themes[theme];
 
   return (
-    <>
-      
-      <ThemeContext.Provider value={value}>
-        <StatusBar 
-        backgroundColor={statusBarColor} // Set the status bar color
-        barStyle={theme === 'dark' ? 'light-content' : 'dark-content'} // Adjust text color
-      />
-        {children}
-      </ThemeContext.Provider>
-    </>
+    <ThemeContext.Provider value={{ theme: themeValue, setTheme: changeTheme }}>
+      <StatusBar style={statusBarStyle} backgroundColor={statusBarColor} />
+      {children}
+    </ThemeContext.Provider>
   );
 };

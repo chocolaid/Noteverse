@@ -5,6 +5,7 @@ import NotesScreen from './screens/NotesScreen';
 import NoteEditorScreen from './screens/NoteEditorScreen';
 import SettingsScreen from './screens/SettingsScreen';
 import ViewNoteScreen from './screens/ViewNoteScreen';
+import LockScreen from './screens/LockScreen';
 
 const Stack = createStackNavigator();
 
@@ -15,6 +16,7 @@ export default function AppStack() {
 
     return (
         <Stack.Navigator>
+            <Stack.Screen name="Lock" component={LockScreen} options={screenOptions} />
             <Stack.Screen name="Home" component={HomeScreen} options={screenOptions} />
             <Stack.Screen name="Notes" component={NotesScreen} options={screenOptions} />
             <Stack.Screen name="NoteEditor" component={NoteEditorScreen} options={screenOptions} />

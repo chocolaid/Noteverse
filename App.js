@@ -9,6 +9,7 @@ const App = () => {
     <>
       <NavigationContainer>
         <ThemeProvider>
+
           <AppStack />
         </ThemeProvider>
       </NavigationContainer>
