@@ -15,22 +15,25 @@ export const ThemeProvider = ({ children }) => {
   const themes = {
     light: {
       primaryBackgroundColor: '#FFFFFF',
-      secondaryBackgroundColor: '#F2F2F2',
+      secondaryBackgroundColor: '#E8E8E8',
       primaryTextColor: '#000000',
       secondaryTextColor: '#888888',
       statusBarColor: '#FFFFFF',
       imageTintColor: '#666666',
       inputFieldHintColor: '#AAAAAA',
+      name: 'Light',
     },
     dark: {
       primaryBackgroundColor: '#000000',
       secondaryBackgroundColor: '#1a1a1a',
       primaryTextColor: '#ffffff',
-      secondaryTextColor: '#f2f2f2',
+      secondaryTextColor: '#E8E8E8',
       statusBarColor: '#000000',
       imageTintColor: '#cccccc',
       inputFieldHintColor: '#777777',
+      name: 'Dark',
     },
+    
     // Other themes...
   };
 
@@ -61,12 +64,16 @@ export const ThemeProvider = ({ children }) => {
     });
 
     return () => subscription.remove();
-  }, [theme]);
+  }, []);
 
   useEffect(() => {
     if (theme !== 'system') {
       setStatusBarColor(themes[theme].statusBarColor);
       setStatusBarStyle(theme === 'dark' ? 'light' : 'dark');
+    } else {
+      const systemTheme = getSystemTheme();
+      setStatusBarColor(systemTheme.statusBarColor);
+      setStatusBarStyle(Appearance.getColorScheme() === 'dark' ? 'light' : 'dark');
     }
   }, [theme]);
 
@@ -74,8 +81,14 @@ export const ThemeProvider = ({ children }) => {
     try {
       await AsyncStorage.setItem('theme', newTheme);
       setTheme(newTheme);
-      setStatusBarColor(themes[newTheme].statusBarColor);
-      setStatusBarStyle(newTheme === 'dark' ? 'light' : 'dark');
+      if (newTheme !== 'system') {
+        setStatusBarColor(themes[newTheme].statusBarColor);
+        setStatusBarStyle(newTheme === 'dark' ? 'light' : 'dark');
+      } else {
+        const systemTheme = getSystemTheme();
+        setStatusBarColor(systemTheme.statusBarColor);
+        setStatusBarStyle(Appearance.getColorScheme() === 'dark' ? 'light' : 'dark');
+      }
     } catch (error) {
       console.error('Failed to save theme to storage', error);
     }

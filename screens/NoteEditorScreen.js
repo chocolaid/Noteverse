@@ -40,6 +40,8 @@ export default function NoteEditorScreen({ navigation, route }) {
   const [key, setKey] = useState(noteKey || '');
   const [favorite, setFavorite] = useState(false);
   const cameraPng = require('../assets/images/camera.png');
+  const [isIntruding, setIsIntruding] = useState(false);
+
   const favoriteImages = {
     favourite: require('../assets/images/bookmarked.png'),
     notFavourite: require('../assets/images/bookmark.png'),
@@ -90,6 +92,7 @@ export default function NoteEditorScreen({ navigation, route }) {
     fetchInitialContent();
   }, [key]);
 
+
   const editor = useEditorBridge({
     autofocus: true,
     avoidIosKeyboard: true,
@@ -103,6 +106,21 @@ export default function NoteEditorScreen({ navigation, route }) {
       LinkBridge.configureExtension({ openOnClick: false }),
     ],
   });
+
+  useEffect(() => {
+    const fetchIntruding = async () => {
+      try {
+        const intruding = await AsyncStorage.getItem('Intruding');
+        if (intruding === 'true') {
+          setIsIntruding(true);
+        }
+      }
+      catch (error) {
+        console.error('Error fetching intruding:', error);
+      }
+    }
+    fetchIntruding();
+  }, [isIntruding])
 
   // Load existing note if not a new note
   useEffect(() => {
@@ -125,6 +143,7 @@ export default function NoteEditorScreen({ navigation, route }) {
   }, [newNote, key]);
 
   const EditNote = async (title, html, key, favorite) => {
+    if (!isIntruding) {
     console.log('received edit:', title, html, key, favorite);
     const notes = await AsyncStorage.getItem('notes');
     const parsedNotes = notes ? JSON.parse(notes) : [];
@@ -137,6 +156,7 @@ export default function NoteEditorScreen({ navigation, route }) {
     });
     await AsyncStorage.setItem('notes', JSON.stringify(updatedNotes));
     console.log('Note updated:', updatedNotes);
+  }
   };
 
   async function randomString(length) {
@@ -155,6 +175,7 @@ export default function NoteEditorScreen({ navigation, route }) {
   }
 
   const CreatNote = async () => {
+    if (!isIntruding) {
     const notes = await AsyncStorage.getItem('notes');
     const parsedNotes = notes ? JSON.parse(notes) : [];
     const key = await randomString(10);
@@ -168,6 +189,7 @@ export default function NoteEditorScreen({ navigation, route }) {
     } else {
       await AsyncStorage.setItem('notes', JSON.stringify([defaultNote]));
     }
+  }
   };
 
   const handleContentChange = useCallback(
@@ -243,6 +265,7 @@ export default function NoteEditorScreen({ navigation, route }) {
   }, []);
 
   const favoriteMgr = () => {
+    
     const newFavorite = !favorite;
     setFavorite(newFavorite);
     console.log('Favorite toggled:', newFavorite);

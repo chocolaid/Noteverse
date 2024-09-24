@@ -18,6 +18,7 @@ const HomeScreenNotes = ({ Notes, favoriteNotes, theme, lastFiveNotes, formatDat
       rowMap[rowKey].closeRow();
     }
   };
+
   const updateNotes = async (notes) => {
     await AsyncStorage.setItem('notes', JSON.stringify(notes));
   };
@@ -29,9 +30,7 @@ const HomeScreenNotes = ({ Notes, favoriteNotes, theme, lastFiveNotes, formatDat
     newData.splice(prevIndex, 1);
     updateNotes(newData);
     setData(newData);
-    
   };
-
 
   const onSwipeValueChange = swipeData => {
     const { key, value } = swipeData;
@@ -41,10 +40,12 @@ const HomeScreenNotes = ({ Notes, favoriteNotes, theme, lastFiveNotes, formatDat
   };
 
   const renderItem = ({ item }) => (
-    <TouchableOpacity style={[{
-        backgroundColor: theme.secondaryBackgroundColor,
-      }, styles.noteCard]} key={item.id} onPress={() => openNote(item.noteKey)}>
-      <View >
+    <TouchableOpacity activeOpacity={1}
+      style={[{ backgroundColor: theme.secondaryBackgroundColor }, styles.noteCard]}
+      key={item.id}
+      onPress={() => openNote(item.noteKey)}
+    >
+      <View>
         <Text style={[styles.noteTitle, { color: theme.primaryTextColor, marginVertical: 5 }]}>{item.title}</Text>
         {item.content.trim().length > 0 ? (
           <Text
@@ -87,17 +88,13 @@ const HomeScreenNotes = ({ Notes, favoriteNotes, theme, lastFiveNotes, formatDat
       <View style={styles.favoriteSection}>
         <View style={{ justifyContent: 'space-between', flexDirection: 'row', alignItems: 'center' }}>
           <Text style={[styles.favoriteSectionText, { color: theme.primaryTextColor }]}>Favorites</Text>
-          {Notes.length != 0 ? (
-            <TouchableOpacity onPress={() => navigation.navigate('Notes', { favorites: true })}>
-              <Text style={[styles.seeAllText, { color: theme.secondaryTextColor }]}>See all</Text>
-            </TouchableOpacity>
-          ) : null}
+          
         </View>
 
         <ScrollView horizontal showsHorizontalScrollIndicator={false}>
           {favoriteNotes.length > 0 ? (
             favoriteNotes.map((note) => (
-              <TouchableOpacity key={note.id} onPress={() => openNote(note.noteKey)}>
+              <TouchableOpacity activeOpacity={1} key={note.id} onPress={() => openNote(note.noteKey)}>
                 <View style={{ margin: 10 }}>
                   <View
                     style={{
@@ -105,9 +102,12 @@ const HomeScreenNotes = ({ Notes, favoriteNotes, theme, lastFiveNotes, formatDat
                       borderRadius: 10,
                       backgroundColor: theme.secondaryBackgroundColor,
                       width: 200,
+                      minHeight: 110,
                     }}
                   >
                     <Text style={[styles.noteTitle, { color: theme.primaryTextColor, fontWeight: 'bold', marginVertical: 5 }]}>{note.title}</Text>
+                    <View style={{flex: 1, justifyContent: 'center', marginBottom: 15, }}>
+                     
                     {note.content.trim().length > 0 ? (
                       <Text
                         style={[styles.noteText, { color: theme.secondaryTextColor, marginVertical: 2 }]}
@@ -119,9 +119,13 @@ const HomeScreenNotes = ({ Notes, favoriteNotes, theme, lastFiveNotes, formatDat
                     ) : (
                       <Text style={[styles.noteText, { color: theme.secondaryTextColor, marginVertical: 2 }]}>No content</Text>
                     )}
+                     </View>
+                    <View style={{position: 'absolute', bottom: 10, marginLeft: 10}}>
                     <Text style={[styles.noteDate, { color: theme.secondaryTextColor, fontSize: 12, marginTop: 5 }]}>
                       {formatDate(note.date)}
                     </Text>
+                    </View>
+                    
                   </View>
                 </View>
               </TouchableOpacity>
@@ -131,9 +135,9 @@ const HomeScreenNotes = ({ Notes, favoriteNotes, theme, lastFiveNotes, formatDat
           )}
         </ScrollView>
       </View>
-      <View style={styles.noteSection}>
+      <View style={[styles.noteSection, {flex: 1}]}>
         <View style={{ justifyContent: 'space-between', flexDirection: 'row', alignItems: 'center' }}>
-          <Text style={[styles.favoriteSectionText, { color: theme.primaryTextColor }]}>Recents</Text>
+          <Text style={[styles.favoriteSectionText, { color: theme.primaryTextColor, paddingBottom: 10}]}>Recents</Text>
           {Notes.length != 0 ? (
             <TouchableOpacity onPress={() => navigation.navigate('Notes', { favorites: false })}>
               <Text style={[styles.seeAllText, { color: theme.secondaryTextColor }]}>See all</Text>
@@ -142,12 +146,13 @@ const HomeScreenNotes = ({ Notes, favoriteNotes, theme, lastFiveNotes, formatDat
         </View>
 
         <SwipeListView
-          data={data}
+          style={{ flex: 1 }}
+          data={lastFiveNotes}
           renderItem={renderItem}
           renderHiddenItem={renderHiddenItem}
           rightOpenValue={-150}
           onSwipeValueChange={onSwipeValueChange}
-          
+          keyExtractor={(item) => item.key.toString()}
         />
       </View>
     </>

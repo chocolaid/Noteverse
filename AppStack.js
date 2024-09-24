@@ -6,6 +6,8 @@ import NoteEditorScreen from './screens/NoteEditorScreen';
 import SettingsScreen from './screens/SettingsScreen';
 import ViewNoteScreen from './screens/ViewNoteScreen';
 import LockScreen from './screens/LockScreen';
+import Login from './screens/Login';
+import FirebaseBaseCloudBackup from './screens/Cloud';
 
 const Stack = createStackNavigator();
 
@@ -22,6 +24,8 @@ export default function AppStack() {
             <Stack.Screen name="NoteEditor" component={NoteEditorScreen} options={screenOptions} />
             <Stack.Screen name="Settings" component={SettingsScreen} options={screenOptions} />
             <Stack.Screen name="ViewNote" component={ViewNoteScreen} options={screenOptions} />
+            <Stack.Screen name="Login" component={Login} options={screenOptions} />
+            <Stack.Screen name="Cloud" component={FirebaseBaseCloudBackup} options={screenOptions} />
         </Stack.Navigator>
     );
 }

@@ -1,4 +1,4 @@
-import { View, Text, FlatList, Animated, StyleSheet, Dimensions, TouchableOpacity, TouchableHighlight, Image, TextInput } from 'react-native';
+import { View, Text, Animated, StyleSheet, Dimensions, TouchableOpacity, TouchableHighlight, Image, TextInput } from 'react-native';
 import React, { useState, useEffect, useRef } from 'react';
 import { formatDate, getNotes } from '../functions/functions';
 import { SwipeListView } from 'react-native-swipe-list-view';
@@ -15,7 +15,7 @@ Array(20)
     });
 
 export default function NotesScreen({ navigation, route }) {
-  const { favorites} = route.params;
+  const { favorites } = route.params;
   const [notes, setNotes] = useState([]);
   const [isSearching, setIsSearching] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
@@ -26,7 +26,6 @@ export default function NotesScreen({ navigation, route }) {
   useEffect(() => {
     const fetchNotes = async () => {
       const notes = await getNotes();
-      console.log(favorites)
       if (favorites) {
         setNotes(notes.filter((note) => note.favorite));
         return;
@@ -34,12 +33,11 @@ export default function NotesScreen({ navigation, route }) {
       setNotes(notes);
     };
     fetchNotes();
-  }, []);
+  }, [favorites]);
 
   const updateNotes = async (notes) => {
     await AsyncStorage.setItem('notes', JSON.stringify(notes));
   };
-
 
   const closeRow = (rowMap, rowKey) => {
     if (rowMap[rowKey]) {
@@ -63,9 +61,8 @@ export default function NotesScreen({ navigation, route }) {
 
   const deleteRow = (rowMap, rowKey) => {
     closeRow(rowMap, rowKey);
-    const newData = [...notes];
-    const prevIndex = notes.findIndex(item => item.key === rowKey);
-    newData.splice(prevIndex, 1);
+  
+    const newData = notes.filter(note => note.noteKey !== rowKey);
     setNotes(newData);
     updateNotes(newData);
   };
@@ -76,14 +73,13 @@ export default function NotesScreen({ navigation, route }) {
     const { key, value } = swipeData;
     if (value < -Dimensions.get('window').width && !animationIsRunning.current) {
       animationIsRunning.current = true;
+  
       Animated.timing(rowTranslateAnimatedValues[key], {
         toValue: 0,
         duration: 200,
         useNativeDriver: false,
       }).start(() => {
-        const newData = [...notes];
-        const prevIndex = notes.findIndex(item => item.key === key);
-        newData.splice(prevIndex, 1);
+        const newData = notes.filter(note => note.noteKey !== key); // Filter using unique key
         setNotes(newData);
         updateNotes(newData);
         animationIsRunning.current = false;
@@ -98,9 +94,9 @@ export default function NotesScreen({ navigation, route }) {
       underlayColor={theme.secondaryBackgroundColor}
     >
       <View>
-        <Text style={[styles.noteTitle, { color: theme.primaryTextColor, marginVertical: 2 }]}>{data.item.title}</Text>
-                <Text
-          style={[styles.noteText, { color: theme.secondaryTextColor, marginVertical: 2 }]}
+        <Text style={[styles.noteTitle, { color: theme.primaryTextColor, marginVertical: 4 }]}>{data.item.title}</Text>
+        <Text
+          style={[styles.noteText, { color: theme.secondaryTextColor, marginVertical: 4 }]}
           numberOfLines={1}
           ellipsizeMode='tail'
         >
@@ -114,18 +110,19 @@ export default function NotesScreen({ navigation, route }) {
   );
 
   const renderHiddenItem = (data, rowMap) => (
-    <View style={styles.rowBack}>
+    <View style={[styles.rowBack, { marginRight: 10 }]}>
       <TouchableOpacity
         style={[styles.backRightBtn, styles.backRightBtnLeft]}
-        onPress={() => closeRow(rowMap, data.item.key)}
+        onPress={() => closeRow(rowMap, data.item.noteKey)}
       >
         <Text style={styles.backTextWhite}>Close</Text>
       </TouchableOpacity>
       <TouchableOpacity
         style={[styles.backRightBtn, styles.backRightBtnRight, {
           borderBottomRightRadius: 10,
-          borderTopRightRadius: 10,}]}
-        onPress={() => deleteRow(rowMap, data.item.key)}
+          borderTopRightRadius: 10,
+        }]}
+        onPress={() => deleteRow(rowMap, data.item.noteKey)}
       >
         <Text style={styles.backTextWhite}>Delete</Text>
       </TouchableOpacity>
@@ -135,34 +132,43 @@ export default function NotesScreen({ navigation, route }) {
   return (
     <View style={[styles.container, { backgroundColor: theme.primaryBackgroundColor }]}>
       <View style={styles.homeHeaderSection}>
-        <Text style={[styles.homeHeaderText, { color: theme.primaryTextColor, marginTop: 8 }]}>{favorites? "Favorite Notes" : "Your Notes"}</Text>
-        
+        <Text style={[styles.homeHeaderText, { color: theme.primaryTextColor, marginTop: 8 }]}>{favorites ? "Favorite Notes" : "Your Notes"}</Text>
       </View>
-      <View style={styles.searchSection}>
-              <View style={[styles.searchInputContainer, { backgroundColor: theme.secondaryBackgroundColor }]}>
-                <Image
-                  source={require('../assets/images/search.png')}
-                  style={[styles.searchIcon, { tintColor: theme.secondaryTextColor }]}
-                />
-                <TextInput
-                  placeholder="Search"
-                  style={[styles.searchInput, { color: theme.secondaryTextColor }]}
-                  placeholderTextColor={theme.secondaryTextColor}
-                  cursorColor={theme.secondaryTextColor}
-                  selectionColor={theme.secondaryTextColor}
-                  onChangeText={handleSearch}
-                  value={searchTerm}
-                />
-              </View>
-            </View>
+      <View style={[styles.searchSection, { paddingHorizontal: 5 }]}>
+        <View style={[styles.searchInputContainer, { backgroundColor: theme.secondaryBackgroundColor }]}>
+          <Image
+            source={require('../assets/images/search.png')}
+            style={[styles.searchIcon, { tintColor: theme.secondaryTextColor }]}
+          />
+          <TextInput
+            placeholder="Search"
+            style={[styles.searchInput, { color: theme.secondaryTextColor }]}
+            placeholderTextColor={theme.secondaryTextColor}
+            cursorColor={theme.secondaryTextColor}
+            selectionColor={theme.secondaryTextColor}
+            onChangeText={handleSearch}
+            value={searchTerm}
+          />
+        </View>
+      </View>
 
-      {!isSearching ? (<SwipeListView
-        data={notes}
-        renderItem={renderItem}
-        renderHiddenItem={renderHiddenItem}
-        rightOpenValue={-150}
-        onSwipeValueChange={onSwipeValueChange}
-      />) : (SearchListView({ Notes: filteredNotes, openNote: (note) => navigation.navigate('NoteEditor', { noteKey: note }), theme, formatDate }))}
+      {!isSearching ? (
+        <SwipeListView
+          style={{ marginTop: 2, padding: 10 }}
+          data={notes}
+          renderItem={renderItem}
+          renderHiddenItem={renderHiddenItem}
+          rightOpenValue={-150}
+          onSwipeValueChange={onSwipeValueChange}
+        />
+      ) : (
+        <SearchListView
+          Notes={filteredNotes}
+          openNote={(note) => navigation.navigate('NoteEditor', { noteKey: note })}
+          theme={theme}
+          formatDate={formatDate}
+        />
+      )}
     </View>
   );
 }

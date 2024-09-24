@@ -1,11 +1,12 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { View, Text, Image, TouchableOpacity, Animated, StyleSheet, ScrollView, TextInput, ActivityIndicator, KeyboardAvoidingView } from 'react-native';
+import { View, Text, Image, TouchableOpacity, Animated, StyleSheet, TextInput, ActivityIndicator, KeyboardAvoidingView } from 'react-native';
 import { styles, fabStyles } from '../styles/styles';
 import { useTheme } from '../contexts/ThemeContext';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useIsFocused } from '@react-navigation/native';
 import HomeScreenNotes from '../components/HomeScreenNotes';
 import { getNotes, formatDate } from '../functions/functions';
+import { auth } from '../firebaseConfig';
 
 // Component for displaying search results
 export const SearchListView = ({ Notes, openNote, theme, formatDate }) => {
@@ -26,14 +27,16 @@ export const SearchListView = ({ Notes, openNote, theme, formatDate }) => {
                   {note.title}
                 </Text>
                 {note.content.trim().length > 0 ? (
-                                        <Text
-                                            style={[styles.noteText, { color: theme.secondaryTextColor, marginVertical: 2 }]}
-                                            numberOfLines={1}
-                                            ellipsizeMode='tail'
-                                        >
-                                            {note.content.length > 100 ? `${note.content.substring(0, 100)}...` : note.content}
-                                        </Text>
-                                    ) : (<Text style={[styles.noteText, { color: theme.secondaryTextColor, marginVertical: 2 }]}>No content</Text>)}
+                  <Text
+                    style={[styles.noteText, { color: theme.secondaryTextColor, marginVertical: 2 }]}
+                    numberOfLines={1}
+                    ellipsizeMode='tail'
+                  >
+                    {note.content.length > 100 ? `${note.content.substring(0, 100)}...` : note.content}
+                  </Text>
+                ) : (
+                  <Text style={[styles.noteText, { color: theme.secondaryTextColor, marginVertical: 2 }]}>No content</Text>
+                )}
                 <Text style={{ color: theme.secondaryTextColor, fontSize: 12, marginTop: 5 }}>
                   {formatDate(note.date)}
                 </Text>
@@ -43,10 +46,10 @@ export const SearchListView = ({ Notes, openNote, theme, formatDate }) => {
         ))
       ) : (
         <View style={{ justifyContent: 'center', alignItems: 'center' }}>
-        <Text style={{ color: theme.secondaryTextColor, margin: 25, textAlign: 'center', width: '100%' }}>
-          No notes found
-        </Text>
-      </View>
+          <Text style={{ color: theme.secondaryTextColor, margin: 25, textAlign: 'center', width: '100%' }}>
+            No notes found
+          </Text>
+        </View>
       )}
     </View>
   );
@@ -58,6 +61,9 @@ const HomeScreen = ({ navigation }) => {
     navigation.navigate('NoteEditor', { noteKey: note });
   };
 
+  
+
+  
   const settingsScaleAnim = useRef(new Animated.Value(1)).current;
   const fabScaleAnim = useRef(new Animated.Value(1)).current;
   const rotationAnim = useRef(new Animated.Value(0)).current;
@@ -188,94 +194,76 @@ const HomeScreen = ({ navigation }) => {
     }
   };
 
-
-
   const favoriteNotes = filteredNotes.filter((note) => note.favorite);
   const lastFiveNotes = [...filteredNotes]
     .sort((a, b) => new Date(b.date) - new Date(a.date))
-    .slice(0, 8);
+    .slice(0, 4);
 
   return (
     <KeyboardAvoidingView style={[styles.container, { backgroundColor: theme.primaryBackgroundColor, paddingTop: 5 }]}>
-      <View style={styles.container} >
-      
-
-      {(
-        <>
-          <Animated.View style={[styles.homeHeaderSection, { height: headerHeight }]}>
-            <Animated.Text style={[styles.homeHeaderText, { color: theme.primaryTextColor }]}>
-              NoteVerse
-            </Animated.Text>
-            <TouchableOpacity onPress={() => handleClick('settings')}>
-              <Animated.View style={{ transform: [{ scale: settingsScaleAnim }, { rotate: rotation }] }}>
-                <Image
-                  source={require('../assets/images/settings.png')}
-                  style={{ height: 25, width: 25, tintColor: theme.primaryTextColor }}
-                />
-              </Animated.View>
-            </TouchableOpacity>
-          </Animated.View>
-
-          <Animated.ScrollView
-            onScroll={Animated.event([{ nativeEvent: { contentOffset: { y: scrollY } } }], { useNativeDriver: false })}
-            scrollEventThrottle={16}
-            showsVerticalScrollIndicator={false}
-            alwaysBounceVertical={false}
-            horizontal={false}
-            style={{ paddingBottom: 60 }}
-          >
-            <View style={styles.searchSection}>
-              <View style={[styles.searchInputContainer, { backgroundColor: theme.secondaryBackgroundColor }]}>
-                <Image
-                  source={require('../assets/images/search.png')}
-                  style={[styles.searchIcon, { tintColor: theme.secondaryTextColor }]}
-                />
-                <TextInput
-                  placeholder="Search"
-                  style={[styles.searchInput, { color: theme.secondaryTextColor }]}
-                  placeholderTextColor={theme.secondaryTextColor}
-                  cursorColor={theme.secondaryTextColor}
-                  selectionColor={theme.secondaryTextColor}
-                  onChangeText={handleSearch}
-                  value={searchTerm}
-                />
-              </View>
-            </View>
-
-            {!isSearching ? (
-              <HomeScreenNotes
-                Notes={filteredNotes} // This is correct for non-search view.
-                theme={theme}
-                lastFiveNotes={lastFiveNotes}
-                favoriteNotes={favoriteNotes}
-                formatDate={formatDate}
-              />
-            ) : (
-              <SearchListView
-                Notes={filteredNotes} // Make sure `filteredNotes` is used here.
-                openNote={openNote}
-                theme={theme}
-                formatDate={formatDate}
-              />
-            )}
-          </Animated.ScrollView>
-
-          <TouchableOpacity
-            style={[fabStyles.fabButton, { backgroundColor: theme.primaryBackgroundColor }]}
-            onPress={() => handleClick('fab')}
-          >
-            <Animated.View style={{ transform: [{ scale: fabScaleAnim }] }}>
+      <View style={styles.container}>
+        <Animated.View style={[styles.homeHeaderSection, { height: headerHeight }]}>
+          <Animated.Text style={[styles.homeHeaderText, { color: theme.primaryTextColor }]}>
+            NoteVerse
+          </Animated.Text>
+          <TouchableOpacity onPress={() => handleClick('settings')}>
+            <Animated.View style={{ transform: [{ scale: settingsScaleAnim }, { rotate: rotation }] }}>
               <Image
-                source={require('../assets/images/add.png')}
+                source={require('../assets/images/settings.png')}
                 style={{ height: 25, width: 25, tintColor: theme.primaryTextColor }}
               />
             </Animated.View>
           </TouchableOpacity>
-        </>
-      )}
-    </View>
+        </Animated.View>
+
+        <View style={styles.searchSection}>
+          <View style={[styles.searchInputContainer, { backgroundColor: theme.secondaryBackgroundColor }]}>
+            <Image
+              source={require('../assets/images/search.png')}
+              style={[styles.searchIcon, { tintColor: theme.secondaryTextColor }]}
+            />
+            <TextInput
+              placeholder="Search"
+              style={[styles.searchInput, { color: theme.secondaryTextColor }]}
+              placeholderTextColor={theme.secondaryTextColor}
+              cursorColor={theme.secondaryTextColor}
+              selectionColor={theme.secondaryTextColor}
+              onChangeText={handleSearch}
+              value={searchTerm}
+            />
+          </View>
+        </View>
+
+        {isSearching ? (
+          <SearchListView
+            Notes={filteredNotes}
+            openNote={openNote}
+            theme={theme}
+            formatDate={formatDate}
+          />
+        ) : (
+          <HomeScreenNotes
+            Notes={lastFiveNotes}
+            theme={theme}
+            lastFiveNotes={lastFiveNotes}
+            favoriteNotes={favoriteNotes}
+            formatDate={formatDate}
+          />
+        )}
+
+        <TouchableOpacity
+          style={[fabStyles.fabButton, { backgroundColor: theme.primaryBackgroundColor }]}
+          onPress={() => handleClick('fab')}
+        >
+          <Animated.View style={{ transform: [{ scale: fabScaleAnim }] }}>
+            <Image
+              source={require('../assets/images/add.png')}
+              style={{ height: 25, width: 25, tintColor: theme.primaryTextColor }}
+            />
+          </Animated.View>
+        </TouchableOpacity>
+      </View>
     </KeyboardAvoidingView>
-    
   );
 };
 

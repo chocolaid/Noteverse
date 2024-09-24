@@ -20,6 +20,10 @@ export const styles = StyleSheet.create({
         fontWeight: "bold",
         fontFamily: "SFPRODISPLAYBOLD",
     },
+    homeHeaderSubText: {
+        fontSize: 16,
+        fontWeight: "300",
+    },
     HomeHeaderIcon: {
         height: 20,
         width: 20,
@@ -175,9 +179,10 @@ export const styles = StyleSheet.create({
         display: 'flex',
         flexDirection: 'column',
         padding: 8,
+        paddingTop: 40,
     },
     settingsCategoryTitle: {
-        fontSize: 24,
+        fontSize: 18,
         fontWeight: 'bold',
     },
     settingsCategoryItem: {
@@ -194,10 +199,10 @@ export const styles = StyleSheet.create({
     },
     settingsCategoryItemOptionText: {
         fontSize: 16,
-        fontWeight: '300',
+        fontWeight: '400',
     },
     settingsCategoryItemOptionDescription: {
-        fontSize: 12,
+        fontSize: 14,
         fontWeight: '300',
         marginLeft: 8,
     },
@@ -216,7 +221,71 @@ export const styles = StyleSheet.create({
         width: '100%',
     },
 
-    
+    modalContainer: {
+        flex: 1,
+        justifyContent: 'center',
+        alignItems: 'center',
+        backgroundColor: 'rgba(0, 0, 0, 0.5)',
+      },
+      modalContent: {
+        width: 300,
+        padding: 20,
+        borderRadius: 10,
+        alignItems: 'flex-start',
+        display: 'flex',
+        flexDirection: 'column',
+
+
+      },
+      modalOptionContainer:{
+        borderWidth: 1,
+        borderRadius: 10,
+        width: '100%',
+        marginVertical: 5,
+        justifyContent: 'center',
+        alignItems: 'center',
+      },
+      modalTitle: {
+        fontSize: 18,
+        fontWeight: 'bold',
+        marginBottom: 20,
+      },
+      modalOption: {
+        fontSize: 16,
+        marginBottom: 10,
+        fontWeight: '600',
+        marginHorizontal: 10,
+        marginTop: 10,
+      },
+      modalCancel: {
+        fontSize: 16,
+        color: 'red',
+        marginTop: 20,
+      },
+
+
+      loginForm: {
+        display: 'flex',
+        flexDirection: 'column',
+        padding: 10,
+        paddingTop: 140,
+        alignItems: 'center',
+        flexGrow: 1,
+      },
+    input: {        
+    padding: 12,
+    borderRadius: 100,
+    marginVertical: 8,
+    display: 'flex',
+    flexDirection: 'row',
+    alignItems: 'center',
+        },
+        TextInput: {
+            fontSize: 16,
+            fontWeight: '300',
+            flexGrow: 2,
+        },
+
     
 
 });
