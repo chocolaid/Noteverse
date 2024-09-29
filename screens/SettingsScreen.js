@@ -112,6 +112,7 @@ export default function SettingsScreen() {
 
   const handleThemeSelection = (themeOption) => {
     setTheme(themeOption);
+    console.log('Theme selected:', themeOption);
     setIsThemeModalVisible(false);
     updateSettings('theme', themeOption);
   };
@@ -361,13 +362,13 @@ The visitor walked away, the mystery of the house lingering in their thoughts. T
             <View style={styles.modalContainer}>
               <View style={[styles.modalContent, { backgroundColor: theme.secondaryBackgroundColor }]}>
                 <Text style={[styles.modalTitle, { color: theme.primaryTextColor }]}>Choose App Theme</Text>
-                <TouchableOpacity onPress={() => handleThemeSelection('Light')}>
+                <TouchableOpacity onPress={() => handleThemeSelection('light')}>
                   <Text style={[styles.modalOption, { color: theme.primaryTextColor }]}>Light</Text>
                 </TouchableOpacity>
-                <TouchableOpacity onPress={() => handleThemeSelection('Dark')}>
+                <TouchableOpacity onPress={() => handleThemeSelection('dark')}>
                   <Text style={[styles.modalOption, { color: theme.primaryTextColor }]}>Dark</Text>
                 </TouchableOpacity>
-                <TouchableOpacity onPress={() => handleThemeSelection('System')}>
+                <TouchableOpacity onPress={() => handleThemeSelection('system')}>
                   <Text style={[styles.modalOption, { color: theme.primaryTextColor }]}>System Default</Text>
                 </TouchableOpacity>
                 <TouchableOpacity onPress={() => setIsThemeModalVisible(false)}>

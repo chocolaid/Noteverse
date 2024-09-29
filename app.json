@@ -2,7 +2,11 @@
   "expo": {
     "name": "Noteverse",
     "slug": "Noteverse",
-    "version": "1.0.0"
+    "version": "9.2.0",
+    "android": {
+      "package": "oec.apps.Noteverse",
+      "versionCode": 8
+    }
   },
   "name": "Noteverse"
 }

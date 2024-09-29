@@ -26,11 +26,21 @@ const HomeScreenNotes = ({ Notes, favoriteNotes, theme, lastFiveNotes, formatDat
   const deleteRow = (rowMap, rowKey) => {
     closeRow(rowMap, rowKey);
     const newData = [...data];
-    const prevIndex = data.findIndex(item => item.key === rowKey);
-    newData.splice(prevIndex, 1);
-    updateNotes(newData);
-    setData(newData);
+    
+    // Find the index using the correct property (noteKey or id)
+    const noteIndex = newData.findIndex((item) => item.key.toString() === rowKey.toString());
+    
+    if (noteIndex >= 0) {
+      newData.splice(noteIndex, 1);
+      setData(newData);
+      updateNotes(newData);
+    }
+  
+    console.log('Data:', newData);
+    console.log('Deleted index:', noteIndex);
   };
+  
+  
 
   const onSwipeValueChange = swipeData => {
     const { key, value } = swipeData;

@@ -1,4 +1,4 @@
-package com.noteverse
+package oec.apps.Noteverse
 
 import android.app.Application
 import android.content.res.Configuration

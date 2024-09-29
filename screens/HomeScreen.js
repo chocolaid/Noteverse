@@ -61,9 +61,6 @@ const HomeScreen = ({ navigation }) => {
     navigation.navigate('NoteEditor', { noteKey: note });
   };
 
-  
-
-  
   const settingsScaleAnim = useRef(new Animated.Value(1)).current;
   const fabScaleAnim = useRef(new Animated.Value(1)).current;
   const rotationAnim = useRef(new Animated.Value(0)).current;
@@ -194,10 +191,23 @@ const HomeScreen = ({ navigation }) => {
     }
   };
 
-  const favoriteNotes = filteredNotes.filter((note) => note.favorite);
-  const lastFiveNotes = [...filteredNotes]
-    .sort((a, b) => new Date(b.date) - new Date(a.date))
-    .slice(0, 4);
+  let parsedFilteredNotes = [];
+  if (Array.isArray(filteredNotes)) {
+    parsedFilteredNotes = filteredNotes;
+  } else {
+    try {
+      parsedFilteredNotes = JSON.parse(filteredNotes);
+      if (!Array.isArray(parsedFilteredNotes)) {
+        parsedFilteredNotes = [];
+      }
+    } catch (e) {
+      parsedFilteredNotes = [];
+    }
+  }
+
+  const favoriteNotes = parsedFilteredNotes.filter((note) => note.favorite);
+  const lastFiveNotes = [...parsedFilteredNotes].sort((a, b) => new Date(b.date) - new Date(a.date)).slice(0, 4);
+
 
   return (
     <KeyboardAvoidingView style={[styles.container, { backgroundColor: theme.primaryBackgroundColor, paddingTop: 5 }]}>

@@ -22,6 +22,9 @@ import {
   CoreBridge,
   LinkBridge,
   DEFAULT_TOOLBAR_ITEMS,
+  ColorBridge,
+  CodeBridge,
+  darkEditorTheme,
 } from '@10play/tentap-editor';
 import { useTheme } from '../contexts/ThemeContext';
 import debounce from 'lodash.debounce';
@@ -54,6 +57,11 @@ export default function NoteEditorScreen({ navigation, route }) {
 
         color: ${theme.primaryTextColor};  /* Dynamic text color */
         background-color: ${theme.primaryBackgroundColor}; /* Dynamic background color */
+        display: flex;
+        flex-direction: column;
+        overflow: hidden;
+        margin: 0;
+
     }
         img {
         margin-right: 10px;
@@ -72,6 +80,14 @@ export default function NoteEditorScreen({ navigation, route }) {
         font-family: 'Courier New';
         color: ${theme.primaryTextColor}; /* Dynamic text color */
     }
+        p {
+    display: block; /* Ensure it's a block-level element */
+    width: 100%; /* Make the paragraph take the full width */
+    margin: 0; /* Remove default margins */
+    padding: 0; /* Remove padding if you want it flush */
+    line-height: 1.5; /* Adjust line height for readability */
+}
+
   `;
 
   useEffect(() => {
@@ -96,6 +112,27 @@ export default function NoteEditorScreen({ navigation, route }) {
   const editor = useEditorBridge({
     autofocus: true,
     avoidIosKeyboard: true,
+    theme: {
+      toolbar: {
+        toolbarBody: {
+          borderTopColor: theme.primaryTextColor,
+          borderBottomColor: theme.primaryTextColor,
+          backgroundColor: theme.primaryBackgroundColor,
+        },
+        toolbarButton: {
+          
+        },
+        icon: {
+          tintColor: theme.secondaryTextColor,
+        },
+        iconActive: {
+          tintColor: theme.primaryTextColor,
+        },
+      },
+    
+      
+    },
+    
     onChange: () => {
       handleContentChange();
     },
@@ -104,8 +141,12 @@ export default function NoteEditorScreen({ navigation, route }) {
       ...TenTapStartKit,
       CoreBridge.configureCSS(customFont),
       LinkBridge.configureExtension({ openOnClick: false }),
+      
+      
     ],
   });
+
+
 
   useEffect(() => {
     const fetchIntruding = async () => {
@@ -349,6 +390,7 @@ export default function NoteEditorScreen({ navigation, route }) {
     return file.filePath;
   }
 
+  
 
 
   return (
@@ -390,6 +432,7 @@ export default function NoteEditorScreen({ navigation, route }) {
         allowFileAccessFromFileURLs={true}
         allowUniversalAccessFromFileURLs={true}
         originWhitelist={['*']}
+          
         mixedContentMode="always"
         allowingReadAccessToURL={'file://'}
         theme={theme}
@@ -412,6 +455,7 @@ export default function NoteEditorScreen({ navigation, route }) {
           ]}
           editor={editor}
           theme={theme}
+
         />
       </KeyboardAvoidingView>
     </SafeAreaView>

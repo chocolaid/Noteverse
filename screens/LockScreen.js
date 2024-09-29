@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { BackHandler } from 'react-native';
 import PinCodeComponent from '../components/PinCode';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
@@ -20,7 +21,12 @@ const LockScreen = ({ route, navigation }) => {
             navigation.navigate('Home');
           }
         } else {
-          navigation.navigate('Home');
+          // No stored settings
+          if (route.params?.mode === 'setup') {
+            setLockMode('setup');
+          } else {
+            navigation.navigate('Home');
+          }
         }
       } catch (error) {
         console.error('Error fetching settings:', error);
@@ -31,9 +37,31 @@ const LockScreen = ({ route, navigation }) => {
     if (!lockMode) {
       fetchSettings();
     }
-  }, [lockMode, navigation]); 
+  }, [lockMode, navigation, route.params?.mode]);
+
+  useEffect(() => {
+    const onBackPress = () => {
+      if (lockMode === 'setup') {
+        navigation.navigate('Home');
+        return true;
+      }else if (lockMode === 'remove') {
+        navigation.navigate('Home');
+        return true;
+      }else{
+        BackHandler.exitApp();
+      }
+      return false;
+    };
+
+    BackHandler.addEventListener('hardwareBackPress', onBackPress);
+
+    return () => {
+      BackHandler.removeEventListener('hardwareBackPress', onBackPress);
+    };
+  }, [lockMode, navigation]);
+
   if (!lockMode) {
-    console.log('Lock mode not set, returning null');
+    console.log('Lock mode not set, returning null', lockMode);
     return null;
   }
 

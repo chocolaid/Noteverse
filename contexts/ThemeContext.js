@@ -15,7 +15,7 @@ export const ThemeProvider = ({ children }) => {
   const themes = {
     light: {
       primaryBackgroundColor: '#FFFFFF',
-      secondaryBackgroundColor: '#E8E8E8',
+      secondaryBackgroundColor: '#f2f2f2',
       primaryTextColor: '#000000',
       secondaryTextColor: '#888888',
       statusBarColor: '#FFFFFF',
@@ -33,8 +33,16 @@ export const ThemeProvider = ({ children }) => {
       inputFieldHintColor: '#777777',
       name: 'Dark',
     },
-    
-    // Other themes...
+    system: {
+      primaryBackgroundColor: Appearance.getColorScheme() === 'dark' ? '#000000' : '#FFFFFF',
+      secondaryBackgroundColor: Appearance.getColorScheme() === 'dark' ? '#1a1a1a' : '#E8E8E8',
+      primaryTextColor: Appearance.getColorScheme() === 'dark' ? '#ffffff' : '#000000',
+      secondaryTextColor: Appearance.getColorScheme() === 'dark' ? '#E8E8E8' : '#888888',
+      statusBarColor: Appearance.getColorScheme() === 'dark' ? '#000000' : '#FFFFFF',
+      imageTintColor: Appearance.getColorScheme() === 'dark' ? '#cccccc' : '#666666',
+      inputFieldHintColor: Appearance.getColorScheme() === 'dark' ? '#777777' : '#AAAAAA',
+      name: 'System',
+    },
   };
 
   const getSystemTheme = () => {
@@ -99,6 +107,7 @@ export const ThemeProvider = ({ children }) => {
   return (
     <ThemeContext.Provider value={{ theme: themeValue, setTheme: changeTheme }}>
       <StatusBar style={statusBarStyle} backgroundColor={statusBarColor} />
+      {console.log('Theme:', themeValue)}
       {children}
     </ThemeContext.Provider>
   );

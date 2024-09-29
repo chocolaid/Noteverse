@@ -18,7 +18,7 @@ export default function AppStack() {
 
     return (
         <Stack.Navigator>
-            <Stack.Screen name="Lock" component={LockScreen} options={screenOptions} />
+            
             <Stack.Screen name="Home" component={HomeScreen} options={screenOptions} />
             <Stack.Screen name="Notes" component={NotesScreen} options={screenOptions} />
             <Stack.Screen name="NoteEditor" component={NoteEditorScreen} options={screenOptions} />
@@ -26,6 +26,7 @@ export default function AppStack() {
             <Stack.Screen name="ViewNote" component={ViewNoteScreen} options={screenOptions} />
             <Stack.Screen name="Login" component={Login} options={screenOptions} />
             <Stack.Screen name="Cloud" component={FirebaseBaseCloudBackup} options={screenOptions} />
+            <Stack.Screen name="Lock" component={LockScreen} options={screenOptions} />
         </Stack.Navigator>
     );
 }
