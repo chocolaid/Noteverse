@@ -289,3 +289,30 @@ export const styles = StyleSheet.create({
     
 
 });
+
+// Add to your styles.js
+export const editorStyles = StyleSheet.create({
+    container: {
+      flex: 1,
+    },
+    loadingContainer: {
+      flex: 1,
+      justifyContent: 'center',
+      alignItems: 'center',
+    },
+    header: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      padding: 10,
+      borderBottomWidth: 1,
+    },
+    titleInput: {
+      flex: 1,
+      fontSize: 24,
+      fontWeight: 'bold',
+      marginHorizontal: 10,
+    },
+    iconButton: {
+      padding: 10,
+    },
+  });

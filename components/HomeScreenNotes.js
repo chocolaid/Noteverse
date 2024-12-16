@@ -13,6 +13,10 @@ const HomeScreenNotes = ({ Notes, favoriteNotes, theme, lastFiveNotes, formatDat
     navigation.navigate('NoteEditor', { noteKey });
   };
 
+  useEffect(() => {
+    setData(lastFiveNotes);
+  }, [lastFiveNotes]);
+
   const closeRow = (rowMap, rowKey) => {
     if (rowMap[rowKey]) {
       rowMap[rowKey].closeRow();
@@ -23,21 +27,22 @@ const HomeScreenNotes = ({ Notes, favoriteNotes, theme, lastFiveNotes, formatDat
     await AsyncStorage.setItem('notes', JSON.stringify(notes));
   };
 
-  const deleteRow = (rowMap, rowKey) => {
+  const deleteRow = async (rowMap, rowKey) => {
     closeRow(rowMap, rowKey);
-    const newData = [...data];
     
-    // Find the index using the correct property (noteKey or id)
-    const noteIndex = newData.findIndex((item) => item.key.toString() === rowKey.toString());
+    // Get all notes from AsyncStorage
+    const storedNotes = await AsyncStorage.getItem('notes');
+    let allNotes = JSON.parse(storedNotes);
     
-    if (noteIndex >= 0) {
-      newData.splice(noteIndex, 1);
-      setData(newData);
-      updateNotes(newData);
-    }
-  
-    console.log('Data:', newData);
-    console.log('Deleted index:', noteIndex);
+    // Remove the note with matching key
+    allNotes = allNotes.filter(note => note.key.toString() !== rowKey.toString());
+    
+    // Update AsyncStorage
+    await AsyncStorage.setItem('notes', JSON.stringify(allNotes));
+    
+    // Update local state
+    const newData = data.filter(item => item.key.toString() !== rowKey.toString());
+    setData(newData);
   };
   
   
@@ -70,6 +75,7 @@ const HomeScreenNotes = ({ Notes, favoriteNotes, theme, lastFiveNotes, formatDat
         )}
         <Text style={[styles.noteDate, { color: theme.secondaryTextColor, marginVertical: 5 }]}>{formatDate(item.date)}</Text>
       </View>
+
     </TouchableOpacity>
   );
 
@@ -141,8 +147,10 @@ const HomeScreenNotes = ({ Notes, favoriteNotes, theme, lastFiveNotes, formatDat
               </TouchableOpacity>
             ))
           ) : (
-            <Text style={{ color: theme.secondaryTextColor, margin: 20, textAlign: 'center', width: '100%' }}>You've not marked any notes as favorites</Text>
-          )}
+            <View style={{ width: '100%', justifyContent: 'center', alignItems: 'center', paddingVertical: 10, marginVertical: 5 }}>
+              <Text style={{ color: theme.secondaryTextColor, textAlign: 'center' }}>You've not marked any notes as favorites</Text>
+            </View>
+            )}
         </ScrollView>
       </View>
       <View style={[styles.noteSection, {flex: 1}]}>
@@ -155,15 +163,17 @@ const HomeScreenNotes = ({ Notes, favoriteNotes, theme, lastFiveNotes, formatDat
           ) : null}
         </View>
 
-        <SwipeListView
-          style={{ flex: 1 }}
-          data={lastFiveNotes}
-          renderItem={renderItem}
-          renderHiddenItem={renderHiddenItem}
-          rightOpenValue={-150}
-          onSwipeValueChange={onSwipeValueChange}
-          keyExtractor={(item) => item.key.toString()}
-        />
+       <SwipeListView
+        style={{ flex: 1 }}
+        data={data}
+        renderItem={renderItem}
+        renderHiddenItem={renderHiddenItem}
+        rightOpenValue={-150}
+        onSwipeValueChange={onSwipeValueChange}
+        keyExtractor={(item) => item.key.toString()}
+        disableRightSwipe
+        closeOnRowPress
+      />
       </View>
     </>
   );
